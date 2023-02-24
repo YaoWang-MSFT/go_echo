@@ -1,6 +1,2 @@
-.github
-manifests
-.gitignore
-main_test.go
-README.md
-.git
+Dockerfile
+charts/
