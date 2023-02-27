@@ -2,14 +2,14 @@ name: test
 "on":
     push:
         branches:
-            - aks-devhub-dback
+            - aks-devhub-ccbww
     workflow_dispatch: {}
 env:
     ACR_RESOURCE_GROUP: wy-rg
-    AZURE_CONTAINER_REGISTRY: acrworkflow1677263265619
+    AZURE_CONTAINER_REGISTRY: acrworkflow1677518233460
     CLUSTER_NAME: aks-wangyao-0123
     CLUSTER_RESOURCE_GROUP: wy-rg
-    CONTAINER_NAME: image-workflow-1677263265619
+    CONTAINER_NAME: testimage
     DEPLOYMENT_MANIFEST_PATH: |
         ./manifests/deployment.yaml
         ./manifests/service.yaml
@@ -62,4 +62,4 @@ jobs:
                 action: deploy
                 images: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
                 manifests: ${{ env.DEPLOYMENT_MANIFEST_PATH }}
-                namespace: namespace-workflow-1677263265619
+                namespace: namespace-workflow-1677518233460
