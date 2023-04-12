@@ -1,12 +1,21 @@
-FROM golang:1.16
-ENV PORT 8080
-EXPOSE 8080
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS builder
+WORKDIR /app
 
-WORKDIR /go/src/app
+# caches restore result by copying csproj file separately
+COPY *.csproj .
+RUN dotnet restore
+
 COPY . .
+RUN dotnet publish --output /app/ --configuration Release --no-restore
+RUN sed -n 's:.*<AssemblyName>\(.*\)</AssemblyName>.*:\1:p' *.csproj > __assemblyname
+RUN if [ ! -s __assemblyname ]; then filename=$(ls *.csproj); echo ${filename%.*} > __assemblyname; fi
 
-RUN go get -d -v ./...
-RUN go build -v -o app ./...
-RUN mv ./app /go/bin/
+# Stage 2
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /app
+COPY --from=builder /app .
 
-CMD ["app"]
+ENV PORT 80
+EXPOSE 80
+
+ENTRYPOINT dotnet $(cat /app/__assemblyname).dll --urls "http://*:80"
