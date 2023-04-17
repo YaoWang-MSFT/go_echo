@@ -1,11 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: goecho
+  name: test111
+  namespace: default
 spec:
+  type: LoadBalancer
   selector:
-    app: goecho
+    app: test111
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 1323
+      targetPort: 80
