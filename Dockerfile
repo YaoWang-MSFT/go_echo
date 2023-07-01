@@ -1,11 +1,21 @@
-# syntax=docker/dockerfile:1
-FROM golang:1.16 AS builder
-WORKDIR /go/src/github.com/gambtho/go_echo/
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o go_echo .
+FROM mcr.microsoft.com/dotnet/sdk:4.0 AS builder
+WORKDIR /app
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /go/src/github.com/gambtho/go_echo/go_echo .
-CMD ["./go_echo"]
+# caches restore result by copying csproj file separately
+COPY *.csproj .
+RUN dotnet restore
+
+COPY . .
+RUN dotnet publish --output /app/ --configuration Release --no-restore
+RUN sed -n 's:.*<AssemblyName>\(.*\)</AssemblyName>.*:\1:p' *.csproj > __assemblyname
+RUN if [ ! -s __assemblyname ]; then filename=$(ls *.csproj); echo ${filename%.*} > __assemblyname; fi
+
+# Stage 2
+FROM mcr.microsoft.com/dotnet/aspnet:4.0
+WORKDIR /app
+COPY --from=builder /app .
+
+ENV PORT 80
+EXPOSE 80
+
+ENTRYPOINT dotnet $(cat /app/__assemblyname).dll --urls "http://*:80"
