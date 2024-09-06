@@ -1,21 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: goecho
+  name: wytestworkflow
   labels:
-    app: goecho
+    app: wytestworkflow
+    kubernetes.azure.com/generator: devhub
+  namespace: namespace-workflow-1725630570183
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: goecho
+      app: wytestworkflow
   template:
     metadata:
       labels:
-        app: goecho
+        app: wytestworkflow
     spec:
       containers:
-        - name: goecho
-          image: ywregistry001.azurecr.io/image003:latest
+        - name: wytestworkflow
+          image: acrworkflow1725630570183.azurecr.io/image-workflow-1725630570183:latest
+          imagePullPolicy: Always
           ports:
-            - containerPort: 1323
+            - containerPort: 5000
